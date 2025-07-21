@@ -1,0 +1,35 @@
+# Compilación
+bin/
+obj/
+*.dll
+*.exe
+
+# Configs de usuario
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VSCode y Visual Studio
+.vscode/
+.vs/
+
+# Sistema operativo
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Archivos de logs o cache
+*.log
+*.pid
+*.psess
+*.vsp
+
+# Base de datos y configuraciones sensibles
+*.db
+*.sqlite
+appsettings.json
+.env
+
+# Otros
+.idea/

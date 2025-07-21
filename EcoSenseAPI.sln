@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36109.1 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcoSenseAPI", "EcoSenseAPI\EcoSenseAPI.csproj", "{C0FAD840-BB21-41A9-9A53-6700CDA16AF7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C0FAD840-BB21-41A9-9A53-6700CDA16AF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0FAD840-BB21-41A9-9A53-6700CDA16AF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0FAD840-BB21-41A9-9A53-6700CDA16AF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0FAD840-BB21-41A9-9A53-6700CDA16AF7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9D9105CD-7E94-4948-BC88-0BD30E5835A0}
+	EndGlobalSection
+EndGlobal
