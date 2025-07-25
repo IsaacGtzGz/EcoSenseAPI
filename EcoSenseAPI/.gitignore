@@ -3,33 +3,46 @@ bin/
 obj/
 *.dll
 *.exe
+*.pdb
+*.deps.json
+*.runtimeconfig.json
 
-# Configs de usuario
+# Configs de usuario y de solución de Visual Studio
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
+*.vspscc
+*.vssscc
+*.tlog
+*.log
+*.trx
+*.etp
+*.map
+*.ipch
 
-# VSCode y Visual Studio
+# Archivos de Visual Studio Code
 .vscode/
+
+# Archivos temporales y de caché de Visual Studio
 .vs/
 
-# Sistema operativo
+# Archivos de sistema operativo
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Archivos de logs o cache
-*.log
-*.pid
-*.psess
-*.vsp
-
-# Base de datos y configuraciones sensibles
+# Bases de datos locales generadas
 *.db
 *.sqlite
-appsettings.json
+
+# Archivos con configuraciones sensibles (credenciales, secretos)
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+appsettings.override.json
 .env
+.secrets/
 
 # Otros
 .idea/
