@@ -12,8 +12,8 @@ namespace EcoSenseAPI.Models
         public string Correo { get; set; }
         public string Contraseña { get; set; }
         public string? Telefono { get; set; }
+        public string Empresa { get; set; } = string.Empty; // Cambio a obligatorio (el documento dice opcional, pero lo vamos a usar para sectorizar)
         public string Rol { get; set; }
-        public string? Empresa { get; set; }
 
         public DatoSalud? DatoSalud { get; set; }
 

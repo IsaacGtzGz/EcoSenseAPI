@@ -26,6 +26,8 @@ obj/
 
 # Archivos temporales y de caché de Visual Studio
 .vs/
+[Bb]in/
+[Oo]bj/
 
 # Archivos de sistema operativo
 Thumbs.db

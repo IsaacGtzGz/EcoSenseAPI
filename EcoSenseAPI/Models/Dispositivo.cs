@@ -11,6 +11,8 @@ namespace EcoSenseAPI.Models
         public string Mac { get; set; }
         public string Nombre { get; set; }
         public string Ubicacion { get; set; }
+        public string Sector { get; set; } // Para clasificación futura por áreas
+
         public int IdUsuario { get; set; }
         public DateTime FechaRegistro { get; set; } = DateTime.Now;
 

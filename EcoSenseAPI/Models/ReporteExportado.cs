@@ -13,6 +13,7 @@ namespace EcoSenseAPI.Models
         public DateTime RangoFin { get; set; }
         public string TipoReporte { get; set; }
         public DateTime FechaExportacion { get; set; } = DateTime.Now;
+        public string RutaArchivo { get; set; } // ← Necesario para localizar el archivo descargable desde el frontend
 
         [JsonIgnore]
         public Usuario? Usuario { get; set; }
