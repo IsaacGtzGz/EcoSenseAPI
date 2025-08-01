@@ -73,6 +73,76 @@ namespace EcoSenseAPI.Controllers
             });
         }
 
+        // GET: api/Lecturas/ultima/1
+        [HttpGet("ultima/{idDispositivo}")]
+        public async Task<ActionResult<Lectura>> ObtenerUltimaLectura(int idDispositivo)
+        {
+            var ultimaLectura = await _context.Lecturas
+                .Where(l => l.IdDispositivo == idDispositivo)
+                .OrderByDescending(l => l.Timestamp)
+                .FirstOrDefaultAsync();
+
+            if (ultimaLectura == null)
+            {
+                return NotFound("No se encontró ninguna lectura para ese dispositivo.");
+            }
+
+            return Ok(ultimaLectura);
+        }
+
+        // GET: api/Lecturas/historico/1?horas=24
+        [HttpGet("historico/{idDispositivo}")]
+        public async Task<ActionResult<IEnumerable<Lectura>>> ObtenerHistoricoLecturas(int idDispositivo, [FromQuery] int horas = 24)
+        {
+            DateTime desde = DateTime.Now.AddHours(-horas);
+
+            var lecturas = await _context.Lecturas
+                .Where(l => l.IdDispositivo == idDispositivo && l.Timestamp >= desde)
+                .OrderByDescending(l => l.Timestamp)
+                .ToListAsync();
+
+            return Ok(lecturas);
+        }
+
+        // GET: api/Lecturas/todas/1
+        [HttpGet("todas/{idDispositivo}")]
+        public async Task<ActionResult<IEnumerable<Lectura>>> ObtenerTodasLecturas(int idDispositivo)
+        {
+            var lecturas = await _context.Lecturas
+                .Where(l => l.IdDispositivo == idDispositivo)
+                .OrderByDescending(l => l.Timestamp)
+                .ToListAsync();
+
+            return Ok(lecturas);
+        }
+
+        // DELETE: api/Lecturas/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> EliminarLectura(long id)
+        {
+            var lectura = await _context.Lecturas.FindAsync(id);
+            if (lectura == null)
+                return NotFound("Lectura no encontrada.");
+
+            _context.Lecturas.Remove(lectura);
+            await _context.SaveChangesAsync();
+
+            return Ok("Lectura eliminada correctamente.");
+        }
+
+        // GET: api/Lecturas/recientes-alertas/1
+        [HttpGet("recientes-alertas/{idDispositivo}")]
+        public async Task<ActionResult<IEnumerable<Lectura>>> ObtenerLecturasConAlertas(int idDispositivo)
+        {
+            var lecturasConAlertas = await _context.Lecturas
+                .Where(l => l.IdDispositivo == idDispositivo && _context.Alertas.Any(a => a.IdLectura == l.IdLectura))
+                .OrderByDescending(l => l.Timestamp)
+                .Take(10)
+                .ToListAsync();
+
+            return Ok(lecturasConAlertas);
+        }
+
         private Alerta CrearAlerta(string tipo, float valor, float umbral, long idLectura)
         {
             return new Alerta
