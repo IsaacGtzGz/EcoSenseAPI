@@ -2,7 +2,9 @@ using EcoSenseAPI.Data;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,23 @@ builder.Services.AddCors(options =>
 // AddControllers
 builder.Services.AddControllers();
 
+// Configuración JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("EcoSense-SuperSecretKey-32Characters!!")),
+            ValidateIssuer = true,
+            ValidIssuer = "EcoSenseAPI",
+            ValidateAudience = true,
+            ValidAudience = "EcoSenseFront",
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
 var app = builder.Build();
 
 // Swagger solo en desarrollo
@@ -46,6 +65,7 @@ if (app.Environment.IsDevelopment())
 // Middleware estándar
 app.UseHttpsRedirection();
 app.UseCors("PoliticaLibre");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
