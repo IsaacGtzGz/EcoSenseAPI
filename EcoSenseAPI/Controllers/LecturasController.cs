@@ -143,6 +143,18 @@ namespace EcoSenseAPI.Controllers
             return Ok(lecturasConAlertas);
         }
 
+        // 🆕 NUEVO MÉTODO AGREGADO PARA ANDROID
+        // GET: api/Lecturas
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Lectura>>> ObtenerLecturas()
+        {
+            var lecturas = await _context.Lecturas
+                .OrderByDescending(l => l.Timestamp)
+                .ToListAsync();
+
+            return Ok(lecturas);
+        }
+
         private Alerta CrearAlerta(string tipo, float valor, float umbral, long idLectura)
         {
             return new Alerta
