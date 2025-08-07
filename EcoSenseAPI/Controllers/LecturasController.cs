@@ -77,6 +77,13 @@ namespace EcoSenseAPI.Controllers
         [HttpGet("ultima/{idDispositivo}")]
         public async Task<ActionResult<Lectura>> ObtenerUltimaLectura(int idDispositivo)
         {
+            // Verificar que el dispositivo existe
+            var dispositivo = await _context.Dispositivos.FindAsync(idDispositivo);
+            if (dispositivo == null)
+            {
+                return NotFound($"Dispositivo con ID {idDispositivo} no encontrado.");
+            }
+
             var ultimaLectura = await _context.Lecturas
                 .Where(l => l.IdDispositivo == idDispositivo)
                 .OrderByDescending(l => l.Timestamp)
@@ -84,7 +91,7 @@ namespace EcoSenseAPI.Controllers
 
             if (ultimaLectura == null)
             {
-                return NotFound("No se encontró ninguna lectura para ese dispositivo.");
+                return NotFound($"No se encontraron lecturas para el dispositivo {dispositivo.Nombre} (ID: {idDispositivo}).");
             }
 
             return Ok(ultimaLectura);
@@ -153,6 +160,54 @@ namespace EcoSenseAPI.Controllers
                 .ToListAsync();
 
             return Ok(lecturas);
+        }
+
+        // 🆕 NUEVO MÉTODO PARA CREAR LECTURAS DE PRUEBA
+        // POST: api/Lecturas/crear-datos-prueba/{idDispositivo}
+        [HttpPost("crear-datos-prueba/{idDispositivo}")]
+        public async Task<IActionResult> CrearDatosPrueba(int idDispositivo)
+        {
+            try
+            {
+                var dispositivo = await _context.Dispositivos.FindAsync(idDispositivo);
+                if (dispositivo == null)
+                    return NotFound("Dispositivo no encontrado");
+
+                var random = new Random();
+                var lecturasPrueba = new List<Lectura>();
+
+                // Crear 10 lecturas de prueba con diferentes timestamps
+                for (int i = 0; i < 10; i++)
+                {
+                    var lectura = new Lectura
+                    {
+                        IdDispositivo = idDispositivo,
+                        Timestamp = DateTime.Now.AddMinutes(-i * 10), // Cada 10 minutos hacia atrás
+                        Co2 = random.Next(350, 1000),
+                        Pm1_0 = (float)(random.NextDouble() * 50),
+                        Pm2_5 = (float)(random.NextDouble() * 35),
+                        Pm10 = (float)(random.NextDouble() * 50),
+                        Temperatura = (float)(15 + random.NextDouble() * 20),
+                        Humedad = (float)(30 + random.NextDouble() * 50),
+                        Presion = (float)(950 + random.NextDouble() * 100)
+                    };
+                    lecturasPrueba.Add(lectura);
+                }
+
+                _context.Lecturas.AddRange(lecturasPrueba);
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    mensaje = $"Se crearon {lecturasPrueba.Count} lecturas de prueba para el dispositivo {dispositivo.Nombre}",
+                    dispositivo = dispositivo.Nombre,
+                    lecturas = lecturasPrueba.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error al crear datos de prueba", detalle = ex.Message });
+            }
         }
 
         private Alerta CrearAlerta(string tipo, float valor, float umbral, long idLectura)

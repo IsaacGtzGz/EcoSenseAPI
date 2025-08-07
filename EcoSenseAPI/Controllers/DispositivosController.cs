@@ -60,14 +60,81 @@ namespace EcoSenseAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDispositivo(int id)
+        public async Task<IActionResult> DeleteDispositivo(int id, [FromQuery] bool force = false)
         {
-            var dispositivo = await _context.Dispositivos.FindAsync(id);
-            if (dispositivo == null) return NotFound();
+            try
+            {
+                var dispositivo = await _context.Dispositivos.FindAsync(id);
+                if (dispositivo == null)
+                    return NotFound(new { mensaje = "Dispositivo no encontrado" });
 
-            _context.Dispositivos.Remove(dispositivo);
-            await _context.SaveChangesAsync();
-            return NoContent();
+                // Verificar si hay lecturas asociadas
+                var lecturas = await _context.Lecturas.Where(l => l.IdDispositivo == id).ToListAsync();
+                var tieneLecturas = lecturas.Any();
+
+                if (tieneLecturas && !force)
+                {
+                    return BadRequest(new
+                    {
+                        mensaje = "No se puede eliminar el dispositivo porque tiene lecturas asociadas",
+                        sugerencia = "Use force=true para eliminar todo en cascada, o considere desactivar el dispositivo",
+                        lecturas = lecturas.Count,
+                        eliminarUrl = $"/api/dispositivos/{id}?force=true"
+                    });
+                }
+
+                var alertasEliminadas = 0;
+
+                // Si force=true, eliminar todo en cascada
+                if (force && tieneLecturas)
+                {
+                    // 1. Eliminar alertas asociadas a las lecturas
+                    var lecturasIds = lecturas.Select(l => l.IdLectura).ToList();
+                    var alertas = await _context.Alertas.Where(a => lecturasIds.Contains(a.IdLectura)).ToListAsync();
+                    if (alertas.Any())
+                    {
+                        _context.Alertas.RemoveRange(alertas);
+                        alertasEliminadas = alertas.Count;
+                    }
+
+                    // 2. Eliminar lecturas
+                    _context.Lecturas.RemoveRange(lecturas);
+                }
+
+                // 3. Verificar y eliminar configuraciones de umbrales
+                var umbrales = await _context.ConfiguracionUmbrales.Where(u => u.IdDispositivo == id).ToListAsync();
+                if (umbrales.Any())
+                {
+                    _context.ConfiguracionUmbrales.RemoveRange(umbrales);
+                }
+
+                // 4. Finalmente eliminar el dispositivo
+                _context.Dispositivos.Remove(dispositivo);
+                await _context.SaveChangesAsync();
+
+                var mensaje = force
+                    ? $"Dispositivo '{dispositivo.Nombre}' y todos sus datos asociados eliminados correctamente"
+                    : $"Dispositivo '{dispositivo.Nombre}' eliminado correctamente";
+
+                return Ok(new
+                {
+                    mensaje = mensaje,
+                    datosEliminados = new
+                    {
+                        lecturas = force ? lecturas.Count : 0,
+                        alertas = alertasEliminadas,
+                        umbrales = umbrales.Count
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = "Error interno del servidor",
+                    detalle = ex.Message
+                });
+            }
         }
     }
 }
