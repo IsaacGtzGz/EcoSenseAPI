@@ -64,6 +64,7 @@ if (app.Environment.IsDevelopment())
 
 // Middleware estándar
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Para servir archivos desde wwwroot
 app.UseCors("PoliticaLibre");
 app.UseAuthentication();
 app.UseAuthorization();

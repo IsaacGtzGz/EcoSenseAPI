@@ -6,6 +6,7 @@ using System.Text;
 using OfficeOpenXml;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.draw;
 
 namespace EcoSenseAPI.Controllers
 {
@@ -81,7 +82,16 @@ namespace EcoSenseAPI.Controllers
                 var lecturas = await ObtenerLecturasFiltradas(request);
 
                 var csv = new StringBuilder();
-                csv.AppendLine("Fecha,Dispositivo,CO2(ppm),PM1.0(µg/m³),PM2.5(µg/m³),PM10(µg/m³),Temperatura(°C),Humedad(%),Presión(hPa)");
+
+                // Header del CSV con información del reporte
+                csv.AppendLine("🍃 REPORTE ECOSENSE - SISTEMA DE MONITOREO AMBIENTAL");
+                csv.AppendLine($"📅 Período: {request.FechaInicio:dd/MM/yyyy} - {request.FechaFin:dd/MM/yyyy}");
+                csv.AppendLine($"⏰ Generado: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+                csv.AppendLine($"📊 Total de registros: {lecturas.Count()}");
+                csv.AppendLine(""); // Línea vacía
+
+                // Headers de datos con emojis
+                csv.AppendLine("📅 Fecha,📡 Dispositivo,💨 CO₂(ppm),🌫️ PM1.0(µg/m³),☁️ PM2.5(µg/m³),🌪️ PM10(µg/m³),🌡️ Temperatura(°C),💧 Humedad(%),🔘 Presión(hPa)");
 
                 foreach (var lectura in lecturas)
                 {
@@ -97,10 +107,14 @@ namespace EcoSenseAPI.Controllers
                 }
 
                 var fileName = $"reporte_ecosense_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-                var filePath = Path.Combine(_environment.WebRootPath, "reportes", fileName);
+
+                // Usar ContentRootPath si WebRootPath es null, pero sin duplicar wwwroot
+                var basePath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+                var reportesPath = Path.Combine(basePath, "reportes");
+                var filePath = Path.Combine(reportesPath, fileName);
 
                 // Crear directorio si no existe
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                Directory.CreateDirectory(reportesPath);
 
                 await System.IO.File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
 
@@ -130,10 +144,14 @@ namespace EcoSenseAPI.Controllers
                 var lecturas = await ObtenerLecturasFiltradas(request);
 
                 var fileName = $"reporte_ecosense_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
-                var filePath = Path.Combine(_environment.WebRootPath, "reportes", fileName);
+
+                // Usar ContentRootPath si WebRootPath es null, pero sin duplicar wwwroot
+                var basePath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+                var reportesPath = Path.Combine(basePath, "reportes");
+                var filePath = Path.Combine(reportesPath, fileName);
 
                 // Crear directorio si no existe
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                Directory.CreateDirectory(reportesPath);
 
                 using (var fs = new FileStream(filePath, FileMode.Create))
                 {
@@ -141,55 +159,117 @@ namespace EcoSenseAPI.Controllers
                     PdfWriter.GetInstance(document, fs);
                     document.Open();
 
-                    // Título
-                    var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
-                    var title = new Paragraph($"Reporte EcoSense - {DateTime.Now:dd/MM/yyyy}", titleFont);
+                    // Título principal con mejor estilo
+                    var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+                    var title = new Paragraph($"🍃 Reporte EcoSense - {DateTime.Now:dd/MM/yyyy}", titleFont);
                     title.Alignment = Element.ALIGN_CENTER;
+                    title.SpacingAfter = 20f;
                     document.Add(title);
 
-                    document.Add(new Paragraph(" ")); // Espacio
+                    // Línea separadora
+                    var line = new LineSeparator(1f, 100f, BaseColor.LIGHT_GRAY, Element.ALIGN_CENTER, -2);
+                    document.Add(new Chunk(line));
+                    document.Add(new Paragraph(" ", FontFactory.GetFont(FontFactory.HELVETICA, 8))); // Espacio
 
-                    // Información del reporte
-                    var infoFont = FontFactory.GetFont(FontFactory.HELVETICA, 10);
-                    document.Add(new Paragraph($"Período: {request.FechaInicio:dd/MM/yyyy} - {request.FechaFin:dd/MM/yyyy}", infoFont));
-                    document.Add(new Paragraph($"Total de registros: {lecturas.Count()}", infoFont));
-                    document.Add(new Paragraph(" "));
+                    // Información del reporte con iconos
+                    var infoFont = FontFactory.GetFont(FontFactory.HELVETICA, 11, BaseColor.DARK_GRAY);
+                    var infoBoldFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 11, BaseColor.BLACK);
 
-                    // Tabla de datos
+                    var infoParagraph = new Paragraph();
+                    infoParagraph.Add(new Chunk("📅 Período: ", infoBoldFont));
+                    infoParagraph.Add(new Chunk($"{request.FechaInicio:dd/MM/yyyy} - {request.FechaFin:dd/MM/yyyy}", infoFont));
+                    infoParagraph.SpacingAfter = 8f;
+                    document.Add(infoParagraph);
+
+                    var totalParagraph = new Paragraph();
+                    totalParagraph.Add(new Chunk("📊 Total de registros: ", infoBoldFont));
+                    totalParagraph.Add(new Chunk($"{lecturas.Count()}", infoFont));
+                    totalParagraph.SpacingAfter = 8f;
+                    document.Add(totalParagraph);
+
+                    var fechaParagraph = new Paragraph();
+                    fechaParagraph.Add(new Chunk("⏰ Generado: ", infoBoldFont));
+                    fechaParagraph.Add(new Chunk($"{DateTime.Now:dd/MM/yyyy HH:mm}", infoFont));
+                    fechaParagraph.SpacingAfter = 15f;
+                    document.Add(fechaParagraph);
+
+                    // Tabla de datos con mejor estilo
                     var table = new PdfPTable(8);
                     table.WidthPercentage = 100;
+                    table.SetWidths(new float[] { 2f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f });
 
-                    // Headers
-                    var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 8);
-                    table.AddCell(new PdfPCell(new Phrase("Fecha", headerFont)));
-                    table.AddCell(new PdfPCell(new Phrase("Dispositivo", headerFont)));
-                    table.AddCell(new PdfPCell(new Phrase("CO2 (ppm)", headerFont)));
-                    table.AddCell(new PdfPCell(new Phrase("PM2.5 (µg/m³)", headerFont)));
-                    table.AddCell(new PdfPCell(new Phrase("PM10 (µg/m³)", headerFont)));
-                    table.AddCell(new PdfPCell(new Phrase("Temp (°C)", headerFont)));
-                    table.AddCell(new PdfPCell(new Phrase("Humedad (%)", headerFont)));
-                    table.AddCell(new PdfPCell(new Phrase("Presión (hPa)", headerFont)));
+                    // Headers con colores
+                    var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
+                    var headerBgColor = new BaseColor(46, 125, 50); // Verde EcoSense
 
-                    // Datos (limitar a 100 registros para PDF)
-                    var dataFont = FontFactory.GetFont(FontFactory.HELVETICA, 7);
+                    var headers = new string[] { "📅 Fecha", "📡 Dispositivo", "💨 CO₂ (ppm)", "🌫️ PM2.5 (µg/m³)",
+                                               "☁️ PM10 (µg/m³)", "🌡️ Temp (°C)", "💧 Humedad (%)", "🔘 Presión (hPa)" };
+
+                    foreach (var header in headers)
+                    {
+                        var cell = new PdfPCell(new Phrase(header, headerFont));
+                        cell.BackgroundColor = headerBgColor;
+                        cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        cell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                        cell.Padding = 8f;
+                        table.AddCell(cell);
+                    }
+
+                    // Datos con colores alternados
+                    var dataFont = FontFactory.GetFont(FontFactory.HELVETICA, 8);
+                    var altRowColor = new BaseColor(248, 249, 250); // Gris muy claro
+
+                    var rowIndex = 0;
                     foreach (var lectura in lecturas.Take(100))
                     {
-                        table.AddCell(new PdfPCell(new Phrase(lectura.Timestamp.ToString("dd/MM HH:mm"), dataFont)));
-                        table.AddCell(new PdfPCell(new Phrase(lectura.IdDispositivo.ToString(), dataFont)));
-                        table.AddCell(new PdfPCell(new Phrase(lectura.Co2?.ToString() ?? "N/A", dataFont)));
-                        table.AddCell(new PdfPCell(new Phrase(lectura.Pm2_5?.ToString() ?? "N/A", dataFont)));
-                        table.AddCell(new PdfPCell(new Phrase(lectura.Pm10?.ToString() ?? "N/A", dataFont)));
-                        table.AddCell(new PdfPCell(new Phrase(lectura.Temperatura?.ToString() ?? "N/A", dataFont)));
-                        table.AddCell(new PdfPCell(new Phrase(lectura.Humedad?.ToString() ?? "N/A", dataFont)));
-                        table.AddCell(new PdfPCell(new Phrase(lectura.Presion?.ToString() ?? "N/A", dataFont)));
+                        var isEvenRow = rowIndex % 2 == 0;
+                        var cellColor = isEvenRow ? BaseColor.WHITE : altRowColor;
+
+                        var cells = new string[] {
+                            lectura.Timestamp.ToString("dd/MM HH:mm"),
+                            lectura.IdDispositivo.ToString(),
+                            lectura.Co2?.ToString() ?? "N/A",
+                            lectura.Pm2_5?.ToString() ?? "N/A",
+                            lectura.Pm10?.ToString() ?? "N/A",
+                            lectura.Temperatura?.ToString() ?? "N/A",
+                            lectura.Humedad?.ToString() ?? "N/A",
+                            lectura.Presion?.ToString() ?? "N/A"
+                        };
+
+                        foreach (var cellText in cells)
+                        {
+                            var cell = new PdfPCell(new Phrase(cellText, dataFont));
+                            cell.BackgroundColor = cellColor;
+                            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            cell.VerticalAlignment = Element.ALIGN_MIDDLE;
+                            cell.Padding = 6f;
+                            table.AddCell(cell);
+                        }
+                        rowIndex++;
                     }
 
                     document.Add(table);
 
+                    // Nota si hay más registros
                     if (lecturas.Count() > 100)
                     {
-                        document.Add(new Paragraph($"Nota: Se muestran los primeros 100 registros de {lecturas.Count()} totales.", infoFont));
+                        var noteFont = FontFactory.GetFont(FontFactory.HELVETICA_OBLIQUE, 10, BaseColor.GRAY);
+                        var note = new Paragraph($"📝 Nota: Se muestran los primeros 100 registros de {lecturas.Count()} totales.", noteFont);
+                        note.Alignment = Element.ALIGN_CENTER;
+                        note.SpacingBefore = 15f;
+                        document.Add(note);
                     }
+
+                    // Footer
+                    document.Add(new Paragraph(" "));
+                    var footerLine = new LineSeparator(1f, 100f, BaseColor.LIGHT_GRAY, Element.ALIGN_CENTER, -2);
+                    document.Add(new Chunk(footerLine));
+
+                    var footerFont = FontFactory.GetFont(FontFactory.HELVETICA, 9, BaseColor.GRAY);
+                    var footer = new Paragraph("🍃 EcoSense - Sistema de Monitoreo Ambiental", footerFont);
+                    footer.Alignment = Element.ALIGN_CENTER;
+                    footer.SpacingBefore = 10f;
+                    document.Add(footer);
 
                     document.Close();
                 }
