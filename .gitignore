@@ -1,0 +1,18 @@
+# Ignorar archivos y carpetas de Visual Studio
+.vs/
+*.db
+*.v2
+*.suo
+*.vsidx
+*.shm
+*.wal
+# Ignorar archivos temporales y de sistema
+*.log
+*.tmp
+# Ignorar binarios y carpetas de compilación
+bin/
+obj/
+# Ignorar archivos de usuario
+*.user
+# Ignorar archivos de configuración local
+local.settings.json
