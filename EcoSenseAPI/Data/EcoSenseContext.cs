@@ -14,6 +14,8 @@ namespace EcoSenseAPI.Data
         public DbSet<Lectura> Lecturas { get; set; }
         public DbSet<Alerta> Alertas { get; set; }
         public DbSet<ReporteExportado> ReportesExportados { get; set; }
+        public DbSet<MensajeContacto> MensajesContacto { get; set; }
+        public DbSet<FaqComentario> FaqComentarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

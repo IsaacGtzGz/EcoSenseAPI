@@ -4,6 +4,7 @@ using EcoSenseAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcoSenseAPI.Migrations
 {
     [DbContext(typeof(EcoSenseContext))]
-    partial class EcoSenseContextModelSnapshot : ModelSnapshot
+    [Migration("20250808012132_AddMensajesContacto")]
+    partial class AddMensajesContacto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,34 +174,6 @@ namespace EcoSenseAPI.Migrations
                     b.HasIndex("UsuarioIdUsuario");
 
                     b.ToTable("Dispositivos");
-                });
-
-            modelBuilder.Entity("EcoSenseAPI.Models.FaqComentario", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Autor")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("Destacado")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Pregunta")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Respuesta")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FaqComentarios");
                 });
 
             modelBuilder.Entity("EcoSenseAPI.Models.Lectura", b =>
