@@ -1,10 +1,11 @@
 using EcoSenseAPI.Data;
+using EcoSenseAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,7 +54,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// Registro del servicio MQTT
+builder.Services.AddSingleton<MqttLecturaService>();
+
 var app = builder.Build();
+
+// Inicializa el servicio MQTT al arrancar
+var mqttService = app.Services.GetRequiredService<MqttLecturaService>();
+await mqttService.InitAsync();
+
 
 // Swagger solo en desarrollo
 if (app.Environment.IsDevelopment())

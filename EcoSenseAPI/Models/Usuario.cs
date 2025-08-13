@@ -8,12 +8,13 @@ namespace EcoSenseAPI.Models
         [Key]
         public int IdUsuario { get; set; }
 
-        public string Nombre { get; set; }
-        public string Correo { get; set; }
-        public string Contraseña { get; set; }
+        public required string Nombre { get; set; }
+        public required string Correo { get; set; }
+        public required string Contraseña { get; set; }
         public string? Telefono { get; set; }
-        public string Empresa { get; set; } = string.Empty; // Cambio a obligatorio (el documento dice opcional, pero lo vamos a usar para sectorizar)
-        public string Rol { get; set; }      
+        public required string Empresa { get; set; }
+        // Roles permitidos: Administrador, Usuario, Cliente
+        public required string Rol { get; set; }
 
         public DatoSalud? DatoSalud { get; set; }
 

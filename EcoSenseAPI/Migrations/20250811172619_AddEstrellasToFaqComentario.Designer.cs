@@ -4,6 +4,7 @@ using EcoSenseAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcoSenseAPI.Migrations
 {
     [DbContext(typeof(EcoSenseContext))]
-    partial class EcoSenseContextModelSnapshot : ModelSnapshot
+    [Migration("20250811172619_AddEstrellasToFaqComentario")]
+    partial class AddEstrellasToFaqComentario
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,40 +102,6 @@ namespace EcoSenseAPI.Migrations
                     b.HasIndex("DispositivoIdDispositivo");
 
                     b.ToTable("ConfiguracionUmbrales");
-                });
-
-            modelBuilder.Entity("EcoSenseAPI.Models.CotizacionSolicitud", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Correo")
-                        .HasColumnType("longtext");
-
-                    b.Property<decimal>("Costo")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Nombre")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Requerimientos")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("TipoProducto")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Cotizaciones");
                 });
 
             modelBuilder.Entity("EcoSenseAPI.Models.DatoSalud", b =>

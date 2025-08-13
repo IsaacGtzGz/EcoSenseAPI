@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using EcoSenseAPI.Models;
 
 namespace EcoSenseAPI.Data
@@ -16,6 +16,7 @@ namespace EcoSenseAPI.Data
         public DbSet<ReporteExportado> ReportesExportados { get; set; }
         public DbSet<MensajeContacto> MensajesContacto { get; set; }
         public DbSet<FaqComentario> FaqComentarios { get; set; }
+        public DbSet<CotizacionSolicitud> Cotizaciones { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

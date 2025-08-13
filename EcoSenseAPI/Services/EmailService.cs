@@ -8,9 +8,8 @@ namespace EcoSenseAPI.Services
     {
         private readonly string smtpHost = "smtp.gmail.com";
         private readonly int smtpPort = 587;
-        private readonly string smtpUser = "isaacgtzgz@gmail.com"; // Cambia por tu correo
-        private readonly string smtpPass = "AQUÍ_TU_CONTRASEÑA_O_APP_PASSWORD"; // Usa App Password
-
+        private readonly string smtpUser = "deloso2ig@gmail.com"; // Cambia por tu correo
+        private readonly string smtpPass = "vvvi ooez upjq kdgu"; // Usa App Password
         public async Task SendEmailAsync(string to, string subject, string body)
         {
             var client = new SmtpClient(smtpHost, smtpPort)

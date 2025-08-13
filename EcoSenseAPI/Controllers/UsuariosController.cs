@@ -16,6 +16,8 @@ namespace EcoSenseAPI.Controllers
             _context = context;
         }
 
+        private readonly Services.EmailService _emailService = new Services.EmailService();
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
@@ -35,6 +37,14 @@ namespace EcoSenseAPI.Controllers
         {
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
+
+            // Si el usuario es cliente, enviar correo con credenciales
+            if (usuario.Rol?.ToLower() == "cliente" && !string.IsNullOrWhiteSpace(usuario.Correo))
+            {
+                var body = $"Hola {usuario.Nombre},\n\nTu cuenta ha sido creada en EcoSense.\n\nUsuario: {usuario.Correo}\nContraseña: {usuario.Contraseña}\n\nPuedes iniciar sesión en la plataforma y cambiar tu contraseña cuando lo desees.\n\nSaludos,\nEquipo EcoSense";
+                await _emailService.SendEmailAsync(usuario.Correo, "Tus credenciales de acceso a EcoSense", body);
+            }
+
             return CreatedAtAction(nameof(GetUsuario), new { id = usuario.IdUsuario }, usuario);
         }
 
